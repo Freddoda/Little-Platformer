@@ -16,7 +16,6 @@ public class Player {
     float xspeed;
     float yspeed;
     boolean floored = true;
-    boolean won = false;
     boolean selected = false;
 
     public Player(int X, int Y, int W, int H){
@@ -40,10 +39,6 @@ public class Player {
         yd=coords[1];
         xspeed=0;
         yspeed=0;
-    }
-
-    public void spawn(Blockmanager.Levels lev){
-        this.spawn(Blockmanager.getplayercoords(lev));
     }
 
     public void draw(Graphics2D g){
@@ -133,31 +128,9 @@ public class Player {
         }
     }
 
-    /*
-    public void collision(ArrayList<Block2> pfs){
-        floored = false;
-        for (Block2 i : pfs){
-            if (i.y-i.h/2<y+h/2 && y+h/2<=i.y-i.h/2+yspeed+1 && i.x-i.w/2<x+w/2 && i.x+i.w/2>x-w/2){
-                floored = true;
-                y=i.y-i.h/2-h/2;
-                if (yspeed>0){yspeed=0;}
-            } else if (i.y+i.h/2>=y-h/2 && y-h/2>=i.y+i.h/2+yspeed-1 && i.x-i.w/2<x+w/2 && i.x+i.w/2>x-w/2 && yspeed<0){
-                y=i.y+i.h/2+h/2;
-                if (yspeed<0){yspeed=0;}
-            } else if (i.y-i.h/2<y+h/2 && i.y+i.h/2>y-h/2){
-                if (i.x-i.w/2<=x+w/2 && i.x-i.w/2+xspeed>=x+w/2){
-                    x=i.x-i.w/2-w/2;
-                    if (xspeed>0){xspeed=0;}
-                } else if (i.x+i.w/2>=x-w/2 && i.x+i.w/2+xspeed<=x-w/2){
-                    x=i.x+i.w/2+w/2;
-                    if (xspeed<0){xspeed=0;}
-                }
-            }
-        }
-    }
-    */
 
-    public void collision(Blockmanager bm){
+    public boolean collision(Blockmanager bm){
+        boolean won = false;
         floored = false;
         boolean collide;
         Blockmanager.Block i;
@@ -200,14 +173,6 @@ public class Player {
                 }
             }
         }
-    }
-
-    public boolean won(){
-        if (won){
-            won=false;
-            return true;
-        } else {
-            return false;
-        }
+        return won;
     }
 }

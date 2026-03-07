@@ -15,10 +15,9 @@ public class RealMain extends JPanel implements Runnable{
     Button Start = new Button(540,400,50,"Start", new int[]{1,1});
     Button Edit = new Button(0,300,30,"Edit", new int[]{0,1});
 
-    Player P = new Player(30,50);
-    Blockmanager bMan = new Blockmanager();
+    LevelManager levelMan = new LevelManager();
 
-    Blockmanager.Levels level = Blockmanager.Levels.TEST;
+    LevelManager.Levels level = LevelManager.Levels.TEST;
 
     private enum State{
         START,
@@ -70,26 +69,22 @@ public class RealMain extends JPanel implements Runnable{
 
         if (gamestate == State.START){
             if (Start.clicked(C,this)){
-                bMan.levLoad(level);
-                P.spawn(level);
+                levelMan.levLoad(level);
                 gamestate=State.GAME;
             } else if (Edit.clicked(C,this)){
-                bMan.levLoad(level);
-                P.spawn(level);
+                levelMan.levLoad(level);
                 gamestate=State.EDIT;
             }
         } else if (gamestate == State.GAME){
-            P.move(K.keys);
-            P.momentum(K.keys);
-            P.collision(bMan);
-            if (P.won()){
+            levelMan.gameupdate(K.keys);
+            if (levelMan.won()){
                 gamestate = State.START;
             }
         } else if (gamestate == State.EDIT){
-            bMan.select(C,P,this);
-            bMan.editMove(K,P);
-            bMan.addBlock(K,P);
-            bMan.saveLevel(K, level, P);
+            levelMan.blockMan.select(C,levelMan.player,this);
+            levelMan.blockMan.editMove(K,levelMan.player);
+            levelMan.blockMan.addBlock(K,levelMan.player);
+            levelMan.saveLevel(K, level);
         }
     }
 
@@ -102,12 +97,12 @@ public class RealMain extends JPanel implements Runnable{
             Start.buttondisp(new int[]{255,0,0},C,G,this);
             Edit.buttondisp(new int[]{255,0,0},C,G,this);
         } else if (gamestate == State.GAME){
-            P.draw(G);
-            bMan.draw(G);
+            levelMan.player.draw(G);
+            levelMan.blockMan.draw(G);
         } else if (gamestate == State.EDIT){
-            bMan.draw(G);
-            P.draw(G);
-            bMan.draw_selected(P,G);
+            levelMan.blockMan.draw(G);
+            levelMan.player.draw(G);
+            levelMan.blockMan.draw_selected(levelMan.player,G);
         }
 
         G.dispose();

@@ -2,9 +2,6 @@ package Little_Platformer;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 //import java.util.Arrays;
 
@@ -98,10 +95,6 @@ public class Blockmanager {
     ArrayList<Block> BlockList = new ArrayList<>();
     int Amount = 0;
 
-    public enum Levels{
-        TEST
-    }
-
     /*
     public void levLoad(Levels lev){
         BlockList.clear();
@@ -111,70 +104,6 @@ public class Blockmanager {
         Amount = BlockList.size();
     }
     */
-
-    public void levLoad(Levels lev){
-        BlockList.clear();
-        if (lev == Levels.TEST){
-            BlockList.addAll(LevFileRead(lev));
-        }
-        Amount = BlockList.size();
-    }
-
-    private static File fileget(Levels lev){
-        File levfile = null;
-        switch (lev){
-            case TEST:
-                levfile = new File("Little_Platformer/TestLev.txt");
-                break;
-            default:
-                break;
-        }
-        return levfile;
-    }
-
-    public ArrayList<Block> LevFileRead(Levels lev){
-        File levfile = null;
-        ArrayList<Block> blocks = new ArrayList<>();
-        String cl1;
-        String[] cl2;
-        boolean isreading = true;
-        levfile = fileget(lev);
-        if (!(levfile==null)){
-            try (java.util.Scanner reader = new java.util.Scanner(levfile)){
-                reader.nextLine();
-                while (isreading){
-                    if (reader.hasNextLine()){
-                        cl1 = reader.nextLine();
-                        cl2 = cl1.split(",");
-                        blocks.add(new Block(Integer.valueOf(cl2[0]),Integer.valueOf(cl2[1]),Integer.valueOf(cl2[2]),Integer.valueOf(cl2[3]),BlockType.valueOf(cl2[4])));
-                    } else {
-                        isreading = false;
-                    }
-                }
-            } catch (FileNotFoundException e){
-                System.out.println(e);
-            }
-        }
-        return blocks;
-    }
-
-    public static int[] getplayercoords(Levels lev){
-        int[] pCoords = new int[2];
-        File levfile = null;      
-        levfile = fileget(lev);
-        String cl1;
-        String[] cl2;
-        if (!(levfile==null)){
-            try (java.util.Scanner reader = new java.util.Scanner(levfile)){
-                cl1 = reader.nextLine();
-                cl2 = cl1.split(",");
-                pCoords = new int[]{Integer.valueOf(cl2[0]),Integer.valueOf(cl2[1])};
-            } catch(FileNotFoundException e){
-                System.out.println(e);
-            }
-        }
-        return pCoords;
-    }
 
     public Block get(int index){
         if (index<Amount && index>=0){
@@ -292,20 +221,6 @@ public class Blockmanager {
                 b.selected = false;
             }
             BlockList.add(new Block(0,0,50,50,true));
-        }
-    }
-
-    public void saveLevel (Keys k, Levels lev, Player p){
-        if (k.keys.contains(java.awt.event.KeyEvent.VK_P)){
-            File file = fileget(lev);
-            try (java.io.FileWriter writer = new java.io.FileWriter(file)){
-                writer.write(String.valueOf(p.x)+','+String.valueOf(p.y)+"\n");
-                for (Block b : BlockList){
-                    writer.write(String.valueOf(b.x)+','+String.valueOf(b.y)+','+String.valueOf(b.w)+','+String.valueOf(b.h)+','+String.valueOf(b.t)+"\n");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
