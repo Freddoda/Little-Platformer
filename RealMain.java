@@ -26,8 +26,10 @@ public class RealMain extends JPanel implements Runnable{
     }
     State gamestate = State.START;
 
+    int[] scrSize = new int[]{1080,720};
+
     public RealMain(){
-        this.setPreferredSize(new Dimension(1080,720));
+        this.setPreferredSize(new Dimension(scrSize[0],scrSize[1]));
         this.setBackground(new Color(0,0,0));
         this.setDoubleBuffered(true);
         this.setFocusable(true);
@@ -81,7 +83,7 @@ public class RealMain extends JPanel implements Runnable{
                 gamestate = State.START;
             }
         } else if (gamestate == State.EDIT){
-            levelMan.blockMan.select(C,levelMan.player,this);
+            levelMan.select(C,this);
             levelMan.blockMan.editMove(K,levelMan.player);
             levelMan.blockMan.addBlock(K,levelMan.player);
             levelMan.saveLevel(K, level);
@@ -97,12 +99,10 @@ public class RealMain extends JPanel implements Runnable{
             Start.buttondisp(new int[]{255,0,0},C,G,this);
             Edit.buttondisp(new int[]{255,0,0},C,G,this);
         } else if (gamestate == State.GAME){
-            levelMan.player.draw(G);
-            levelMan.blockMan.draw(G);
+            levelMan.gamedraw(G);
         } else if (gamestate == State.EDIT){
-            levelMan.blockMan.draw(G);
-            levelMan.player.draw(G);
-            levelMan.blockMan.draw_selected(levelMan.player,G);
+            levelMan.gamedraw(G);
+            levelMan.draw_selected(G);
         }
 
         G.dispose();

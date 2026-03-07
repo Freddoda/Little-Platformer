@@ -120,40 +120,6 @@ public class Blockmanager {
         }
     }
 
-    public void select(Clicked c, Player p, javax.swing.JPanel scr){
-        if (c.Mbuttons.contains(java.awt.event.MouseEvent.BUTTON1)){
-            int[] mousepos = c.getmousepos(scr);
-            if (mousepos[0]>p.x-p.w/2 && mousepos[0]<p.x+p.w/2 && mousepos[1]>p.y-p.h/2 && mousepos[1]<p.y+p.h/2){
-                p.selected=true;
-                for (Block b : BlockList){
-                    b.selected=false;
-                }
-            } else {
-                p.selected = false;
-                for (Block b : BlockList){
-                    if ((mousepos[0]>b.x-b.w/2 && mousepos[0]<b.x+b.w/2 && mousepos[1]>b.y-b.h/2 && mousepos[1]<b.y+b.h/2)){
-                        b.selected=true;
-                    } else {
-                        b.selected=false;
-                    }
-                }
-            }
-        } 
-    }
-
-    public void draw_selected(Player p, Graphics2D g){
-        g.setColor(Color.GREEN);
-        if (p.selected){
-            g.drawRect((int) p.x-p.w/2, (int) p.y-p.h/2, p.w, p.h);
-        } else{
-            for (Block b : BlockList){
-                if (b.selected){
-                    g.drawRect((int) b.x-b.w/2, (int) b.y-b.h/2, b.w, b.h);
-                }
-            }
-        }
-    }
-
     public void editMove(Keys k, Player p){
         if (p.selected){
             if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){

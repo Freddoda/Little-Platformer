@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.awt.Color;
+import java.awt.Graphics2D;
 
 import Little_Platformer.Blockmanager.Block;
 import Little_Platformer.Blockmanager.BlockType;
@@ -19,8 +21,8 @@ public class LevelManager {
     }
 
     public class Camera{
-        int x;
-        int y;
+        int x; //centre X
+        int y; //centre Y
     }
 
     Camera cam = new Camera();
@@ -29,6 +31,11 @@ public class LevelManager {
         player.move(keys);
         player.momentum(keys);
         won = player.collision(blockMan);
+    }
+
+    public void gamedraw(Graphics2D G){
+        player.draw(G);
+        blockMan.draw(G);
     }
 
     public boolean won(){
@@ -103,6 +110,40 @@ public class LevelManager {
             }
         }
         return pCoords;
+    }
+
+    public void select(Clicked c, javax.swing.JPanel scr){
+        if (c.Mbuttons.contains(java.awt.event.MouseEvent.BUTTON1)){
+            int[] mousepos = c.getmousepos(scr);
+            if (mousepos[0]>player.x-player.w/2 && mousepos[0]<player.x+player.w/2 && mousepos[1]>player.y-player.h/2 && mousepos[1]<player.y+player.h/2){
+                player.selected=true;
+                for (Block b : blockMan.BlockList){
+                    b.selected=false;
+                }
+            } else {
+                player.selected = false;
+                for (Block b : blockMan.BlockList){
+                    if ((mousepos[0]>b.x-b.w/2 && mousepos[0]<b.x+b.w/2 && mousepos[1]>b.y-b.h/2 && mousepos[1]<b.y+b.h/2)){
+                        b.selected=true;
+                    } else {
+                        b.selected=false;
+                    }
+                }
+            }
+        } 
+    }
+
+    public void draw_selected(Graphics2D g){
+        g.setColor(Color.GREEN);
+        if (player.selected){
+            g.drawRect((int) player.x-player.w/2, (int) player.y-player.h/2, player.w, player.h);
+        } else{
+            for (Block b : blockMan.BlockList){
+                if (b.selected){
+                    g.drawRect((int) b.x-b.w/2, (int) b.y-b.h/2, b.w, b.h);
+                }
+            }
+        }
     }
 
     public void saveLevel (Keys k, Levels lev){
