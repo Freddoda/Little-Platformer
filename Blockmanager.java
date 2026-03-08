@@ -3,6 +3,7 @@ package Little_Platformer;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.awt.event.KeyEvent;
 //import java.util.Arrays;
 
 public class Blockmanager {
@@ -120,73 +121,79 @@ public class Blockmanager {
         }
     }
 
-    public void editMove(Keys k, Player p){
-        if (p.selected){
-            if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){
-                p.y-=5;
-                p.yd-=5;
-            }
-            if (k.keys.contains(java.awt.event.KeyEvent.VK_S)){
-                p.y+=5;
-                p.yd+=5;
-            }
-            if (k.keys.contains(java.awt.event.KeyEvent.VK_A)){
-                p.x-=5;
-                p.xd-=5;
-            }
-            if (k.keys.contains(java.awt.event.KeyEvent.VK_D)){
-                p.x+=5;
-                p.xd+=5;
-            }
-        } else {
-            try {
-                for (Block b: BlockList){
-                    if (b.selected){
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){
-                            b.y-=5;
+    public void editMove(Keys k){
+        try {
+            for (Block b: BlockList){
+                if (b.selected){
+                    if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){
+                        b.y-=5;
+                    }
+                    if (k.keys.contains(java.awt.event.KeyEvent.VK_S)){
+                        b.y+=5;
+                    }
+                    if (k.keys.contains(java.awt.event.KeyEvent.VK_A)){
+                        b.x-=5;
+                    }
+                    if (k.keys.contains(java.awt.event.KeyEvent.VK_D)){
+                        b.x+=5;
+                    }
+                    if (k.keys.contains(java.awt.event.KeyEvent.VK_SHIFT)){
+                        if (k.keys.contains(java.awt.event.KeyEvent.VK_E)){
+                            b.w-=5;
                         }
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_S)){
-                            b.y+=5;
+                        if (k.keys.contains(java.awt.event.KeyEvent.VK_Q)){
+                            b.h-=5;
                         }
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_A)){
-                            b.x-=5;
+                    } else {
+                        if (k.keys.contains(java.awt.event.KeyEvent.VK_E)){
+                            b.w+=5;
                         }
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_D)){
-                            b.x+=5;
-                        }
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_SHIFT)){
-                            if (k.keys.contains(java.awt.event.KeyEvent.VK_E)){
-                                b.w-=5;
-                            }
-                            if (k.keys.contains(java.awt.event.KeyEvent.VK_Q)){
-                                b.h-=5;
-                            }
-                        } else {
-                            if (k.keys.contains(java.awt.event.KeyEvent.VK_E)){
-                                b.w+=5;
-                            }
-                            if (k.keys.contains(java.awt.event.KeyEvent.VK_Q)){
-                                b.h+=5;
-                            }
-                        }
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_M)){
-                            BlockList.remove(b);
+                        if (k.keys.contains(java.awt.event.KeyEvent.VK_Q)){
+                            b.h+=5;
                         }
                     }
+                    if (k.keys.contains(java.awt.event.KeyEvent.VK_M)){
+                        BlockList.remove(b);
+                    }
                 }
-            } catch (Exception e) {
-
             }
+        } catch (Exception e) {
+
         }
     }
 
-    public void addBlock (Keys k, Player p){
-        if (k.keys.contains(java.awt.event.KeyEvent.VK_N)){
-            p.selected = false;
+    public int addBlock (Keys k, int timer){
+        if (k.keys.contains(java.awt.event.KeyEvent.VK_1) && timer==30){
             for (Block b : BlockList) {
                 b.selected = false;
             }
-            BlockList.add(new Block(0,0,50,50,true));
+            BlockList.add(new Block(0,0,50,50,BlockType.NORMAL));
+            timer=0;
         }
+        return timer;
+    }
+
+    public int changeType(Keys k, int timer){
+        if ((k.keys.contains(KeyEvent.VK_O) ^ k.keys.contains(KeyEvent.VK_P)) && timer==30){
+            timer=0;
+            for (Block b : BlockList){
+                if (b.selected){
+                    if (k.keys.contains(KeyEvent.VK_O)){
+                        if (b.t.ordinal() == 0){
+                            b.t = BlockType.values()[BlockType.values().length-1];
+                        } else {
+                            b.t = BlockType.values()[b.t.ordinal()-1];
+                        }
+                    } else {
+                        if (b.t.ordinal() == BlockType.values().length-1){
+                            b.t = BlockType.values()[0];
+                        } else {
+                            b.t = BlockType.values()[b.t.ordinal()+1];
+                        }
+                    }
+                }
+            }
+        }
+        return timer;
     }
 }

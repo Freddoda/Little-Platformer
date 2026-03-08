@@ -16,9 +16,21 @@ public class LevelManager {
     Player player = new Player(30, 50);
     boolean won = false;
 
+    int editTimer = 30;
+
+    Levels currentLevel = Levels.TEST;
+
     public enum Levels{
         TEST
     }
+
+    public enum EditModes{
+        NONE,
+        PLATFORM,
+        PLAYER
+    }
+
+    EditModes editMode = EditModes.NONE;
 
     public class Camera{
         int x; //centre X
@@ -47,11 +59,11 @@ public class LevelManager {
         }
     }
 
-    public void levLoad(Levels lev){
+    public void levLoad(){
         blockMan.BlockList.clear();
-        if (lev == Levels.TEST){
-            blockMan.BlockList.addAll(LevFileRead(lev));
-            player.spawn(getplayercoords(lev));
+        if (currentLevel == Levels.TEST){
+            blockMan.BlockList.addAll(LevFileRead(currentLevel));
+            player.spawn(getplayercoords(currentLevel));
         }
         blockMan.Amount = blockMan.BlockList.size();
     }
@@ -114,23 +126,47 @@ public class LevelManager {
 
     public void select(Clicked c, javax.swing.JPanel scr){
         if (c.Mbuttons.contains(java.awt.event.MouseEvent.BUTTON1)){
+            //unselect everything
+            editMode = EditModes.NONE;
+            player.selected = false;
+            for (Block b : blockMan.BlockList){
+                b.selected=false;
+            }
+            //find what was selected
             int[] mousepos = c.getmousepos(scr);
             if (mousepos[0]>player.x-player.w/2 && mousepos[0]<player.x+player.w/2 && mousepos[1]>player.y-player.h/2 && mousepos[1]<player.y+player.h/2){
                 player.selected=true;
-                for (Block b : blockMan.BlockList){
-                    b.selected=false;
-                }
+                editMode = EditModes.PLAYER;
             } else {
-                player.selected = false;
                 for (Block b : blockMan.BlockList){
                     if ((mousepos[0]>b.x-b.w/2 && mousepos[0]<b.x+b.w/2 && mousepos[1]>b.y-b.h/2 && mousepos[1]<b.y+b.h/2)){
                         b.selected=true;
-                    } else {
-                        b.selected=false;
+                        editMode = EditModes.PLATFORM;
                     }
                 }
             }
         } 
+    }
+
+    public void edit(Clicked c, Keys k, javax.swing.JPanel scr){
+        select(c,scr);
+        switch (editMode){
+            case PLATFORM:
+                blockMan.editMove(k);
+                editTimer = blockMan.changeType(k, editTimer);
+                break;
+            case PLAYER:
+                player.editMove(k);
+                break;
+            default:
+                break;
+        }
+        editTimer = blockMan.addBlock(k, editTimer);
+        saveLevel(k);
+
+        if (editTimer < 30){
+            editTimer++;
+        }
     }
 
     public void draw_selected(Graphics2D g){
@@ -146,9 +182,9 @@ public class LevelManager {
         }
     }
 
-    public void saveLevel (Keys k, Levels lev){
-        if (k.keys.contains(java.awt.event.KeyEvent.VK_P)){
-            File file = fileget(lev);
+    public void saveLevel (Keys k){
+        if (k.keys.contains(java.awt.event.KeyEvent.VK_M)){
+            File file = fileget(currentLevel);
             try (java.io.FileWriter writer = new java.io.FileWriter(file)){
                 writer.write(String.valueOf(player.x)+','+String.valueOf(player.y)+"\n");
                 for (Block b : blockMan.BlockList){

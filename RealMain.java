@@ -17,8 +17,6 @@ public class RealMain extends JPanel implements Runnable{
 
     LevelManager levelMan = new LevelManager();
 
-    LevelManager.Levels level = LevelManager.Levels.TEST;
-
     private enum State{
         START,
         GAME,
@@ -71,10 +69,10 @@ public class RealMain extends JPanel implements Runnable{
 
         if (gamestate == State.START){
             if (Start.clicked(C,this)){
-                levelMan.levLoad(level);
+                levelMan.levLoad();
                 gamestate=State.GAME;
             } else if (Edit.clicked(C,this)){
-                levelMan.levLoad(level);
+                levelMan.levLoad();
                 gamestate=State.EDIT;
             }
         } else if (gamestate == State.GAME){
@@ -83,10 +81,7 @@ public class RealMain extends JPanel implements Runnable{
                 gamestate = State.START;
             }
         } else if (gamestate == State.EDIT){
-            levelMan.select(C,this);
-            levelMan.blockMan.editMove(K,levelMan.player);
-            levelMan.blockMan.addBlock(K,levelMan.player);
-            levelMan.saveLevel(K, level);
+            levelMan.edit(C,K,this);
         }
     }
 

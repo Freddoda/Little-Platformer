@@ -175,4 +175,25 @@ public class Player {
         }
         return won;
     }
+
+    public void editMove(Keys k){
+        if (selected){
+            if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){
+                y-=5;
+                yd-=5;
+            }
+            if (k.keys.contains(java.awt.event.KeyEvent.VK_S)){
+                y+=5;
+                yd+=5;
+            }
+            if (k.keys.contains(java.awt.event.KeyEvent.VK_A)){
+                x-=5;
+                xd-=5;
+            }
+            if (k.keys.contains(java.awt.event.KeyEvent.VK_D)){
+                x+=5;
+                xd+=5;
+            }
+        }
+    }
 }
