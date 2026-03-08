@@ -71,6 +71,15 @@ public class Blockmanager {
         }
 
         public Block(int x, int y, int w, int h, BlockType t){
+            Color c = setColor(t);
+            this(x,y,w,h,c,t,false);
+        }
+
+        public Block(int x, int y, int w, int h, boolean selected){
+            this(x,y,w,h,Color.WHITE,BlockType.NORMAL,selected);
+        }
+
+        public static Color setColor(BlockType t){
             Color c;
             switch (t){
                 case BlockType.WIN:
@@ -83,11 +92,12 @@ public class Blockmanager {
                     c=Color.WHITE;
                     break;
             }
-            this(x,y,w,h,c,t,false);
+            return c;
         }
 
-        public Block(int x, int y, int w, int h, boolean selected){
-            this(x,y,w,h,Color.WHITE,BlockType.NORMAL,selected);
+        public void setType(BlockType type){
+            t = type;
+            c = setColor(type);
         }
     }
 
@@ -180,15 +190,15 @@ public class Blockmanager {
                 if (b.selected){
                     if (k.keys.contains(KeyEvent.VK_O)){
                         if (b.t.ordinal() == 0){
-                            b.t = BlockType.values()[BlockType.values().length-1];
+                            b.setType(BlockType.values()[BlockType.values().length-1]);
                         } else {
-                            b.t = BlockType.values()[b.t.ordinal()-1];
+                            b.setType(BlockType.values()[b.t.ordinal()-1]);
                         }
                     } else {
                         if (b.t.ordinal() == BlockType.values().length-1){
-                            b.t = BlockType.values()[0];
+                            b.setType(BlockType.values()[0]);
                         } else {
-                            b.t = BlockType.values()[b.t.ordinal()+1];
+                            b.setType(BlockType.values()[b.t.ordinal()+1]);
                         }
                     }
                 }
