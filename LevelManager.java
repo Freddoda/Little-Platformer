@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import javax.swing.JPanel;
+import java.awt.event.KeyEvent;
 
 import Little_Platformer.Blockmanager.Block;
 import Little_Platformer.Blockmanager.BlockType;
@@ -27,19 +29,62 @@ public class LevelManager {
     public enum EditModes{
         NONE,
         PLATFORM,
-        PLAYER
+        PLAYER,
+        BOUNDING
     }
 
     EditModes editMode = EditModes.NONE;
 
-    public class Camera{
-        int x; //centre X
-        int y; //centre Y
+    public class BoundingBox{
+        int[] topLeft = new int[2];
+        int[] botRight = new int[2];
     }
 
+    public class Camera{
+        int[] movedOffset = new int[]{0,0};
+        int[] completeOffset = new int[]{0,0}; //offset increases, cam moves right, other things go left
+        final int[] assumedScrSize = new int[]{1080,720};
+        int[] realScrSize = new int[]{1080,720};
+
+        void reset(){
+            movedOffset = new int[]{0,0};
+        }
+
+        void screenSize(JPanel screen){
+            realScrSize = new int[]{screen.getWidth(),screen.getHeight()};
+        }
+
+        void calcComplOffset(){
+            completeOffset = new int[]{movedOffset[0]-(int)(realScrSize[0]-assumedScrSize[0])/2,
+                                       movedOffset[1]-(int)(realScrSize[1]-assumedScrSize[1])/2 };
+        }
+
+        void editMove(Keys k){
+            if (k.keys.contains(KeyEvent.VK_W)){
+                movedOffset[1] -=3;
+            }
+            if (k.keys.contains(KeyEvent.VK_S)){
+                movedOffset[1] +=3;
+            }
+            if (k.keys.contains(KeyEvent.VK_A)){
+                movedOffset[0] -=3;
+            }
+            if (k.keys.contains(KeyEvent.VK_D)){
+                movedOffset[0] +=3;
+            }
+        }
+
+        void gameMove(Player plyr, BoundingBox bnd){
+            
+        }
+    }
+
+    BoundingBox bound = new BoundingBox();
     Camera cam = new Camera();
 
-    public void gameupdate(List<Integer> keys){
+    public void gameupdate(List<Integer> keys, JPanel screen){
+        cam.screenSize(screen);
+
         player.move(keys);
         player.momentum(keys);
         won = player.collision(blockMan);
@@ -66,6 +111,7 @@ public class LevelManager {
             player.spawn(getplayercoords(currentLevel));
         }
         blockMan.Amount = blockMan.BlockList.size();
+        cam.reset();
     }
 
     private static File fileget(Levels lev){
@@ -148,8 +194,9 @@ public class LevelManager {
         } 
     }
 
-    public void edit(Clicked c, Keys k, javax.swing.JPanel scr){
+    public void edit(Clicked c, Keys k, JPanel scr){
         select(c,scr);
+        cam.screenSize(scr);
         switch (editMode){
             case PLATFORM:
                 blockMan.editMove(k);
@@ -158,6 +205,8 @@ public class LevelManager {
             case PLAYER:
                 player.editMove(k);
                 break;
+            case NONE:
+                cam.editMove(k);
             default:
                 break;
         }

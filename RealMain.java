@@ -76,7 +76,7 @@ public class RealMain extends JPanel implements Runnable{
                 gamestate=State.EDIT;
             }
         } else if (gamestate == State.GAME){
-            levelMan.gameupdate(K.keys);
+            levelMan.gameupdate(K.keys,this);
             if (levelMan.won()){
                 gamestate = State.START;
             }
