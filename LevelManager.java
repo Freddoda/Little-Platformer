@@ -207,6 +207,7 @@ public class LevelManager {
                 break;
             case NONE:
                 cam.editMove(k);
+                break;
             default:
                 break;
         }
