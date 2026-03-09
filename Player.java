@@ -18,7 +18,7 @@ public class Player {
     boolean floored = true;
     boolean selected = false;
 
-    public Player(int X, int Y, int W, int H){
+    protected Player(int X, int Y, int W, int H){
         this.x = X;
         this.y = Y;
         this.w = W;
@@ -27,12 +27,12 @@ public class Player {
         yd=Y;
     }
 
-    public Player(int W, int H){
+    protected Player(int W, int H){
         this.w = W;
         this.h = H;
     }
 
-    public void spawn(int[] coords){
+    protected void spawn(int[] coords){
         x=coords[0];
         xd=coords[0];
         y=coords[1];
@@ -41,14 +41,12 @@ public class Player {
         yspeed=0;
     }
 
-    public void draw(Graphics2D g){
+    protected void draw(Graphics2D g, LevelManager.Camera cam){
         g.setColor(Color.BLUE);
-        g.fillRect(x-w/2,y-h/2,w,h);
-        g.fillRect(x-1080-w/2,y-h/2,w,h);
-        g.fillRect(x+1080-w/2,y-h/2,w,h);
+        g.fillRect(x-w/2 - cam.completeOffset[0], y-h/2 - cam.completeOffset[1],w,h);
     }
 
-    public void move(List<Integer> keys){
+    protected void move(List<Integer> keys){
         this.y+=this.yspeed;
         this.x+=this.xspeed;
         if (x>1080){
@@ -63,7 +61,7 @@ public class Player {
         }
     }
 
-    public void momentum(List<Integer> keys){
+    protected void momentum(List<Integer> keys){
         if (floored == false){
             this.yspeed+=0.8;
         } else {
@@ -129,7 +127,7 @@ public class Player {
     }
 
 
-    public boolean collision(Blockmanager bm){
+    protected boolean collision(Blockmanager bm){
         boolean won = false;
         floored = false;
         boolean collide;
@@ -176,7 +174,7 @@ public class Player {
         return won;
     }
 
-    public void editMove(Keys k){
+    protected void editMove(Keys k){
         if (selected){
             if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){
                 y-=5;

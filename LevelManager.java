@@ -22,11 +22,11 @@ public class LevelManager {
 
     Levels currentLevel = Levels.TEST;
 
-    public enum Levels{
+    protected enum Levels{
         TEST
     }
 
-    public enum EditModes{
+    protected enum EditModes{
         NONE,
         PLATFORM,
         PLAYER,
@@ -35,12 +35,62 @@ public class LevelManager {
 
     EditModes editMode = EditModes.NONE;
 
-    public class BoundingBox{
+    protected class BoundingBox{
         int[] topLeft = new int[2];
         int[] botRight = new int[2];
+
+        BoundingBox(){
+            this.topLeft = new int[]{0,0};
+            this.botRight = new int[]{0,0};
+        }
+
+        void setPoints(int[] topLeft, int[] botRight){
+            this.topLeft = topLeft;
+            this.botRight = botRight;
+        }
+
+        void setPoints(int[][] points){
+            this.topLeft = points[0];
+            this.botRight = points[1];
+        }
+
+        void editMove(Keys k){
+            if (k.keys.contains(KeyEvent.VK_SHIFT)){
+                if (k.keys.contains(KeyEvent.VK_W)){
+                    topLeft[1]-=3;
+                }
+                if (k.keys.contains(KeyEvent.VK_A)){
+                    topLeft[0]-=3;
+                }
+                if (k.keys.contains(KeyEvent.VK_S)){
+                    topLeft[1]+=3;
+                }
+                if (k.keys.contains(KeyEvent.VK_D)){
+                    topLeft[0]+=3;
+                }
+            } else {
+                if (k.keys.contains(KeyEvent.VK_W)){
+                    botRight[1]-=3;
+                }
+                if (k.keys.contains(KeyEvent.VK_A)){
+                    botRight[0]-=3;
+                }
+                if (k.keys.contains(KeyEvent.VK_S)){
+                    botRight[1]+=3;
+                }
+                if (k.keys.contains(KeyEvent.VK_D)){
+                    botRight[0]+=3;
+                }
+            }
+        }
+
+        void draw(Graphics2D g, Camera cam){
+            g.setColor(Color.WHITE);
+            g.drawRect(topLeft[0]-cam.completeOffset[0],topLeft[1]-cam.completeOffset[1],botRight[0]-topLeft[0],botRight[1]-topLeft[1]);
+        }
     }
 
-    public class Camera{
+    protected class Camera{
         int[] movedOffset = new int[]{0,0};
         int[] completeOffset = new int[]{0,0}; //offset increases, cam moves right, other things go left
         final int[] assumedScrSize = new int[]{1080,720};
@@ -75,27 +125,35 @@ public class LevelManager {
         }
 
         void gameMove(Player plyr, BoundingBox bnd){
-            
+            if (bnd.botRight[0]-bnd.topLeft[0]<realScrSize[0]){
+                movedOffset[0]=0;
+            }
+            if (bnd.botRight[1]-bnd.topLeft[1]<realScrSize[1]){
+                movedOffset[1]=0;
+            }
         }
     }
 
     BoundingBox bound = new BoundingBox();
     Camera cam = new Camera();
 
-    public void gameupdate(List<Integer> keys, JPanel screen){
+    protected void gameupdate(List<Integer> keys, JPanel screen){
         cam.screenSize(screen);
+        cam.calcComplOffset();
+        cam.gameMove(player,bound);
 
         player.move(keys);
         player.momentum(keys);
         won = player.collision(blockMan);
     }
 
-    public void gamedraw(Graphics2D G){
-        player.draw(G);
-        blockMan.draw(G);
+    protected void gamedraw(Graphics2D G){
+        player.draw(G,cam);
+        blockMan.draw(G, cam);
+        bound.draw(G,cam);
     }
 
-    public boolean won(){
+    protected boolean won(){
         if (won){
             won=false;
             return true;
@@ -104,13 +162,14 @@ public class LevelManager {
         }
     }
 
-    public void levLoad(){
+    protected void levLoad(){
         blockMan.BlockList.clear();
-        if (currentLevel == Levels.TEST){
-            blockMan.BlockList.addAll(LevFileRead(currentLevel));
-            player.spawn(getplayercoords(currentLevel));
-        }
+        blockMan.BlockList.addAll(LevFileRead(currentLevel));
         blockMan.Amount = blockMan.BlockList.size();
+
+        player.spawn(getplayercoords(currentLevel));
+        bound.setPoints(getboundingbox(currentLevel));
+
         cam.reset();
     }
 
@@ -126,7 +185,7 @@ public class LevelManager {
         return levfile;
     }
 
-    public ArrayList<Block> LevFileRead(Levels lev){
+    protected static ArrayList<Block> LevFileRead(Levels lev){
         File levfile = null;
         ArrayList<Block> blocks = new ArrayList<>();
         String cl1;
@@ -135,6 +194,7 @@ public class LevelManager {
         levfile = fileget(lev);
         if (!(levfile==null)){
             try (java.util.Scanner reader = new java.util.Scanner(levfile)){
+                reader.nextLine();
                 reader.nextLine();
                 while (isreading){
                     if (reader.hasNextLine()){
@@ -152,7 +212,7 @@ public class LevelManager {
         return blocks;
     }
 
-    public static int[] getplayercoords(Levels lev){
+    protected static int[] getplayercoords(Levels lev){
         int[] pCoords = new int[2];
         File levfile = null;      
         levfile = fileget(lev);
@@ -170,7 +230,33 @@ public class LevelManager {
         return pCoords;
     }
 
-    public void select(Clicked c, javax.swing.JPanel scr){
+    protected static int[][] getboundingbox(Levels lev){
+        int[][] points = new int[][]{new int[]{0,0}, new int[]{0,0}};
+        File levfile = null;      
+        levfile = fileget(lev);
+        String cl1;
+        String[] cl2;
+        if (!(levfile==null)){
+            try (java.util.Scanner reader = new java.util.Scanner(levfile)){
+                reader.nextLine();
+                cl1 = reader.nextLine();
+                cl2 = cl1.split(",");
+                points = new int[][]{new int[]{Integer.valueOf(cl2[0]),Integer.valueOf(cl2[1])}, new int[]{Integer.valueOf(cl2[2]),Integer.valueOf(cl2[3])}};
+            } catch(FileNotFoundException e){
+                System.out.println(e);
+            }
+        }
+        return points;
+    }
+
+    protected void select(Clicked c, Keys k, javax.swing.JPanel scr){
+        if (k.keys.contains(KeyEvent.VK_B)){
+            editMode = EditModes.BOUNDING;
+            player.selected = false;
+            for (Block b : blockMan.BlockList){
+                b.selected=false;
+            }
+        }
         if (c.Mbuttons.contains(java.awt.event.MouseEvent.BUTTON1)){
             //unselect everything
             editMode = EditModes.NONE;
@@ -180,12 +266,14 @@ public class LevelManager {
             }
             //find what was selected
             int[] mousepos = c.getmousepos(scr);
-            if (mousepos[0]>player.x-player.w/2 && mousepos[0]<player.x+player.w/2 && mousepos[1]>player.y-player.h/2 && mousepos[1]<player.y+player.h/2){
+            if (mousepos[0]>player.x-player.w/2-cam.completeOffset[0] && mousepos[0]<player.x+player.w/2-cam.completeOffset[0] 
+                && mousepos[1]>player.y-player.h/2-cam.completeOffset[1] && mousepos[1]<player.y+player.h/2-cam.completeOffset[1]){
                 player.selected=true;
                 editMode = EditModes.PLAYER;
             } else {
                 for (Block b : blockMan.BlockList){
-                    if ((mousepos[0]>b.x-b.w/2 && mousepos[0]<b.x+b.w/2 && mousepos[1]>b.y-b.h/2 && mousepos[1]<b.y+b.h/2)){
+                    if ((mousepos[0]>b.x-b.w/2-cam.completeOffset[0] && mousepos[0]<b.x+b.w/2-cam.completeOffset[0] 
+                        && mousepos[1]>b.y-b.h/2-cam.completeOffset[1] && mousepos[1]<b.y+b.h/2-cam.completeOffset[1])){
                         b.selected=true;
                         editMode = EditModes.PLATFORM;
                     }
@@ -194,9 +282,10 @@ public class LevelManager {
         } 
     }
 
-    public void edit(Clicked c, Keys k, JPanel scr){
-        select(c,scr);
+    protected void edit(Clicked c, Keys k, JPanel scr){
+        select(c,k,scr);
         cam.screenSize(scr);
+        cam.calcComplOffset();
         switch (editMode){
             case PLATFORM:
                 blockMan.editMove(k);
@@ -204,6 +293,9 @@ public class LevelManager {
                 break;
             case PLAYER:
                 player.editMove(k);
+                break;
+            case BOUNDING:
+                bound.editMove(k);
                 break;
             case NONE:
                 cam.editMove(k);
@@ -219,24 +311,25 @@ public class LevelManager {
         }
     }
 
-    public void draw_selected(Graphics2D g){
+    protected void draw_selected(Graphics2D g){
         g.setColor(Color.GREEN);
         if (player.selected){
-            g.drawRect((int) player.x-player.w/2, (int) player.y-player.h/2, player.w, player.h);
+            g.drawRect((int) player.x-player.w/2 - cam.completeOffset[0], (int) player.y-player.h/2 - cam.completeOffset[1], player.w, player.h);
         } else{
             for (Block b : blockMan.BlockList){
                 if (b.selected){
-                    g.drawRect((int) b.x-b.w/2, (int) b.y-b.h/2, b.w, b.h);
+                    g.drawRect((int) b.x-b.w/2 - cam.completeOffset[0], (int) b.y-b.h/2 - cam.completeOffset[1], b.w, b.h);
                 }
             }
         }
     }
 
-    public void saveLevel (Keys k){
+    protected void saveLevel (Keys k){
         if (k.keys.contains(java.awt.event.KeyEvent.VK_M)){
             File file = fileget(currentLevel);
             try (java.io.FileWriter writer = new java.io.FileWriter(file)){
                 writer.write(String.valueOf(player.x)+','+String.valueOf(player.y)+"\n");
+                writer.write(String.valueOf(bound.topLeft[0])+','+String.valueOf(bound.topLeft[1])+','+String.valueOf(bound.botRight[0])+','+String.valueOf(bound.botRight[1])+"\n");
                 for (Block b : blockMan.BlockList){
                     writer.write(String.valueOf(b.x)+','+String.valueOf(b.y)+','+String.valueOf(b.w)+','+String.valueOf(b.h)+','+String.valueOf(b.t)+"\n");
                 }

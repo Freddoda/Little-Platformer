@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 
 public class Blockmanager {
 
-    public static enum BlockType{
+    protected static enum BlockType{
         NORMAL,
         WIN,
         HARM
@@ -43,7 +43,7 @@ public class Blockmanager {
     */
     // commented it out because edit mode requires Block values to be mutable
 
-    public static class Block{
+    protected static class Block{
         int x;
         int y;
         int w;
@@ -52,7 +52,7 @@ public class Blockmanager {
         BlockType t;
         Boolean selected;
 
-        public Block(int x, int y, int w, int h, Color c, BlockType t, Boolean selected){
+        protected Block(int x, int y, int w, int h, Color c, BlockType t, Boolean selected){
             this.x = x;
             this.y = y;
             this.w = w;
@@ -62,24 +62,24 @@ public class Blockmanager {
             this.selected = selected;
         }
 
-        public Block(int x, int y, int w, int h){
+        protected Block(int x, int y, int w, int h){
             this(x,y,w,h,Color.WHITE,BlockType.NORMAL,false);
         }
 
-        public Block(int x, int y, int w, int h,Color c){
+        protected Block(int x, int y, int w, int h,Color c){
             this(x,y,w,h,c,BlockType.NORMAL,false);
         }
 
-        public Block(int x, int y, int w, int h, BlockType t){
+        protected Block(int x, int y, int w, int h, BlockType t){
             Color c = setColor(t);
             this(x,y,w,h,c,t,false);
         }
 
-        public Block(int x, int y, int w, int h, boolean selected){
+        protected Block(int x, int y, int w, int h, boolean selected){
             this(x,y,w,h,Color.WHITE,BlockType.NORMAL,selected);
         }
 
-        public static Color setColor(BlockType t){
+        protected static Color setColor(BlockType t){
             Color c;
             switch (t){
                 case BlockType.WIN:
@@ -95,7 +95,7 @@ public class Blockmanager {
             return c;
         }
 
-        public void setType(BlockType type){
+        protected void setType(BlockType type){
             t = type;
             c = setColor(type);
         }
@@ -116,7 +116,7 @@ public class Blockmanager {
     }
     */
 
-    public Block get(int index){
+    protected Block get(int index){
         if (index<Amount && index>=0){
             return BlockList.get(index);
         } else {
@@ -124,14 +124,14 @@ public class Blockmanager {
         }
     }
 
-    public void draw(Graphics2D g){
+    protected void draw(Graphics2D g, LevelManager.Camera cam){
         for (Block b : BlockList){
             g.setColor(b.c);
-            g.fillRect(b.x-b.w/2,b.y-b.h/2,b.w,b.h);
+            g.fillRect(b.x-b.w/2 - cam.completeOffset[0], b.y-b.h/2 - cam.completeOffset[1],b.w,b.h);
         }
     }
 
-    public void editMove(Keys k){
+    protected void editMove(Keys k){
         try {
             for (Block b: BlockList){
                 if (b.selected){
@@ -172,7 +172,7 @@ public class Blockmanager {
         }
     }
 
-    public int addBlock (Keys k, int timer){
+    protected int addBlock (Keys k, int timer){
         if (k.keys.contains(java.awt.event.KeyEvent.VK_1) && timer==30){
             for (Block b : BlockList) {
                 b.selected = false;
@@ -183,7 +183,7 @@ public class Blockmanager {
         return timer;
     }
 
-    public int changeType(Keys k, int timer){
+    protected int changeType(Keys k, int timer){
         if ((k.keys.contains(KeyEvent.VK_O) ^ k.keys.contains(KeyEvent.VK_P)) && timer==30){
             timer=0;
             for (Block b : BlockList){
