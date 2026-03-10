@@ -30,7 +30,8 @@ public class LevelManager {
         NONE,
         PLATFORM,
         PLAYER,
-        BOUNDING
+        BOUNDING,
+        ENEMY
     }
 
     EditModes editMode = EditModes.NONE;
@@ -55,24 +56,24 @@ public class LevelManager {
         }
 
         void editMove(Keys k){
-            if (k.keys.contains(KeyEvent.VK_SHIFT)){
+            if (!k.keys.contains(KeyEvent.VK_SHIFT)){
                 if (k.keys.contains(KeyEvent.VK_W)){
                     topLeft[1]-=3;
                 }
                 if (k.keys.contains(KeyEvent.VK_A)){
                     topLeft[0]-=3;
                 }
-                if (k.keys.contains(KeyEvent.VK_S)){
+                if (k.keys.contains(KeyEvent.VK_S) && topLeft[1]<botRight[1]-3){
                     topLeft[1]+=3;
                 }
-                if (k.keys.contains(KeyEvent.VK_D)){
+                if (k.keys.contains(KeyEvent.VK_D) && topLeft[0]<botRight[0]-3){
                     topLeft[0]+=3;
                 }
             } else {
-                if (k.keys.contains(KeyEvent.VK_W)){
+                if (k.keys.contains(KeyEvent.VK_W) && botRight[1]>topLeft[1]+3){
                     botRight[1]-=3;
                 }
-                if (k.keys.contains(KeyEvent.VK_A)){
+                if (k.keys.contains(KeyEvent.VK_A) && botRight[0]>topLeft[0]+3){
                     botRight[0]-=3;
                 }
                 if (k.keys.contains(KeyEvent.VK_S)){
@@ -131,6 +132,8 @@ public class LevelManager {
             if (bnd.botRight[1]-bnd.topLeft[1]<realScrSize[1]){
                 movedOffset[1]=0;
             }
+
+            // I should probably finish this at some point
         }
     }
 
@@ -144,6 +147,7 @@ public class LevelManager {
 
         player.move(keys);
         player.momentum(keys);
+        player.boundsCheck(bound);
         won = player.collision(blockMan);
     }
 
@@ -303,11 +307,30 @@ public class LevelManager {
             default:
                 break;
         }
-        editTimer = blockMan.addBlock(k, editTimer);
+        delete(k);
+        if (blockMan.addBlock(k, editTimer)){
+            editTimer = 0;
+            editMode = EditModes.PLATFORM;
+        }
         saveLevel(k);
 
         if (editTimer < 30){
             editTimer++;
+        }
+    }
+
+    protected void delete(Keys k){
+        if (k.keys.contains(KeyEvent.VK_M) && !(editMode == EditModes.NONE) && editTimer==30){
+            switch (editMode){
+                case PLATFORM:
+                    blockMan.deleteBlock();
+                case ENEMY:
+                    break; //implement later
+                default:
+                    break;
+            }
+            editMode = EditModes.NONE;
+            editTimer = 0;
         }
     }
 
@@ -325,7 +348,7 @@ public class LevelManager {
     }
 
     protected void saveLevel (Keys k){
-        if (k.keys.contains(java.awt.event.KeyEvent.VK_M)){
+        if (k.keys.contains(java.awt.event.KeyEvent.VK_ENTER)){
             File file = fileget(currentLevel);
             try (java.io.FileWriter writer = new java.io.FileWriter(file)){
                 writer.write(String.valueOf(player.x)+','+String.valueOf(player.y)+"\n");

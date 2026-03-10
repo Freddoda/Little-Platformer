@@ -136,34 +136,31 @@ public class Blockmanager {
             for (Block b: BlockList){
                 if (b.selected){
                     if (k.keys.contains(java.awt.event.KeyEvent.VK_W)){
-                        b.y-=5;
+                        b.y-=3;
                     }
                     if (k.keys.contains(java.awt.event.KeyEvent.VK_S)){
-                        b.y+=5;
+                        b.y+=3;
                     }
                     if (k.keys.contains(java.awt.event.KeyEvent.VK_A)){
-                        b.x-=5;
+                        b.x-=3;
                     }
                     if (k.keys.contains(java.awt.event.KeyEvent.VK_D)){
-                        b.x+=5;
+                        b.x+=3;
                     }
                     if (k.keys.contains(java.awt.event.KeyEvent.VK_SHIFT)){
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_E)){
-                            b.w-=5;
+                        if (k.keys.contains(java.awt.event.KeyEvent.VK_E) && b.w>3){
+                            b.w-=3;
                         }
-                        if (k.keys.contains(java.awt.event.KeyEvent.VK_Q)){
-                            b.h-=5;
+                        if (k.keys.contains(java.awt.event.KeyEvent.VK_Q) && b.h>3){
+                            b.h-=3;
                         }
                     } else {
                         if (k.keys.contains(java.awt.event.KeyEvent.VK_E)){
-                            b.w+=5;
+                            b.w+=3;
                         }
                         if (k.keys.contains(java.awt.event.KeyEvent.VK_Q)){
-                            b.h+=5;
+                            b.h+=3;
                         }
-                    }
-                    if (k.keys.contains(java.awt.event.KeyEvent.VK_M)){
-                        BlockList.remove(b);
                     }
                 }
             }
@@ -172,15 +169,24 @@ public class Blockmanager {
         }
     }
 
-    protected int addBlock (Keys k, int timer){
+    protected boolean addBlock (Keys k, int timer){
         if (k.keys.contains(java.awt.event.KeyEvent.VK_1) && timer==30){
             for (Block b : BlockList) {
                 b.selected = false;
             }
-            BlockList.add(new Block(0,0,50,50,BlockType.NORMAL));
-            timer=0;
+            BlockList.add(new Block(0,0,50,50,true));
+            return true;
+        } else {
+            return false;
         }
-        return timer;
+    }
+
+    protected void deleteBlock(){
+        for (Block block : BlockList){
+            if (block.selected){
+                BlockList.remove(block);
+            }
+        }
     }
 
     protected int changeType(Keys k, int timer){
