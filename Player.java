@@ -49,16 +49,6 @@ public class Player {
     protected void move(List<Integer> keys){
         this.y+=this.yspeed;
         this.x+=this.xspeed;
-        if (x>1080){
-            x-=1080;
-        } else if (x<0){
-            x+=1080;
-        }
-        if (y>720){
-            y-=720;
-        } else if (y<0){
-            y+=720;
-        }
     }
 
     protected void momentum(List<Integer> keys){
@@ -75,49 +65,49 @@ public class Player {
         }
         if ((keys.contains(KeyEvent.VK_A) || keys.contains(KeyEvent.VK_LEFT))){
             if (floored){
-                this.xspeed-=1.2;
+                this.xspeed-=1.8;
             } else {
-                this.xspeed-=0.5;
+                this.xspeed-=0.8;
             }
-            if (this.xspeed<-9){
-                this.xspeed=-9;
+            if (this.xspeed<-6){
+                this.xspeed=-6;
             }
         }
         if ((keys.contains(KeyEvent.VK_D) || keys.contains(KeyEvent.VK_RIGHT))){
             if (floored){
-                this.xspeed+=1.2;
+                this.xspeed+=1.8;
             } else {
-                this.xspeed+=0.5;
+                this.xspeed+=0.8;
             }
-            if (this.xspeed>9){
-                this.xspeed=9;
+            if (this.xspeed>6){
+                this.xspeed=6;
             }
         }
         if (!(keys.contains(KeyEvent.VK_A) || keys.contains(KeyEvent.VK_LEFT) || keys.contains(KeyEvent.VK_D) || keys.contains(KeyEvent.VK_RIGHT))){
             if (floored){
                 if (this.xspeed<0){
-                    if (xspeed<-0.6){
-                    this.xspeed+=0.6;
+                    if (xspeed<-1){
+                    this.xspeed+=1;
                     } else{
                         xspeed=0;
                     }
                 } else if (this.xspeed>0){
-                    if (xspeed>0.6){
-                    this.xspeed-=0.6;
+                    if (xspeed>1){
+                    this.xspeed-=1;
                     } else {
                         xspeed=0;
                     }
                 }
             } else {
                 if (this.xspeed<0){
-                    if (xspeed<-0.2){
-                    this.xspeed+=0.2;
+                    if (xspeed<-0.4){
+                    this.xspeed+=0.4;
                     } else{
                         xspeed=0;
                     }
                 } else if (this.xspeed>0){
-                    if (xspeed>0.2){
-                    this.xspeed-=0.2;
+                    if (xspeed>0.4){
+                    this.xspeed-=0.4;
                     } else {
                         xspeed=0;
                     }
@@ -172,6 +162,15 @@ public class Player {
             }
         }
         return won;
+    }
+
+    protected void boundsCheck(LevelManager.BoundingBox bound){
+        if (x-w/2<bound.topLeft[0] || y-h/2<bound.topLeft[1] || x+w/2>bound.botRight[0] || y+h/2>bound.botRight[1]){
+            x=xd;
+            y=yd;
+            xspeed=0;
+            yspeed=0;
+        }
     }
 
     protected void editMove(Keys k){
