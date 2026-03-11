@@ -126,14 +126,27 @@ public class LevelManager {
         }
 
         void gameMove(Player plyr, BoundingBox bnd){
+            movedOffset[0]=player.x-(assumedScrSize[0])/2;
+            movedOffset[1]=player.y-(assumedScrSize[1])/2;
+            
+            if (movedOffset[0]+assumedScrSize[0]/2-realScrSize[0]/2<=bnd.topLeft[0]){
+                movedOffset[0]=bnd.topLeft[0]-assumedScrSize[0]/2+realScrSize[0]/2 +1;
+            } else if (movedOffset[0]+assumedScrSize[0]/2+realScrSize[0]/2>=bnd.botRight[0]){
+                movedOffset[0]=bnd.botRight[0]-assumedScrSize[0]/2-realScrSize[0]/2 -1;
+            }
+            if (movedOffset[1]+assumedScrSize[1]/2-realScrSize[1]/2<=bnd.topLeft[1]){
+                movedOffset[1]=bnd.topLeft[1]-assumedScrSize[1]/2+realScrSize[1]/2 +1;
+            } else if (movedOffset[1]+assumedScrSize[1]/2+realScrSize[1]/2>=bnd.botRight[1]){
+                movedOffset[1]=bnd.botRight[1]-assumedScrSize[1]/2-realScrSize[1]/2 -1;
+            }
+            
+
             if (bnd.botRight[0]-bnd.topLeft[0]<realScrSize[0]){
                 movedOffset[0]=0;
             }
             if (bnd.botRight[1]-bnd.topLeft[1]<realScrSize[1]){
                 movedOffset[1]=0;
             }
-
-            // I should probably finish this at some point
         }
     }
 
@@ -141,14 +154,14 @@ public class LevelManager {
     Camera cam = new Camera();
 
     protected void gameupdate(List<Integer> keys, JPanel screen){
-        cam.screenSize(screen);
-        cam.calcComplOffset();
-        cam.gameMove(player,bound);
-
         player.move(keys);
         player.momentum(keys);
         player.boundsCheck(bound);
         won = player.collision(blockMan);
+
+        cam.screenSize(screen);
+        cam.gameMove(player,bound);
+        cam.calcComplOffset();
     }
 
     protected void gamedraw(Graphics2D G){
